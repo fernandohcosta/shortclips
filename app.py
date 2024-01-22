@@ -53,12 +53,12 @@ def create_app(test_config=None ):
             website_url = website_url.split(',')
         video_url = data["video_url"]
 
-        #download_audio_from_yotube(video_url, run_folder)
+        download_audio_from_yotube(video_url, run_folder)
         get_transcription(run_folder)
         clusters = segment_transcription_llm_test(run_folder)
-        #get_website_texts(website_url, run_folder)
+        get_website_texts(website_url, run_folder)
         define_topic(run_folder)
-        #save_video(video_url, run_folder)
+        save_video(video_url, run_folder)
         clips_folder = run_folder / 'clips'
         clips_folder.mkdir(parents=True, exist_ok=True)
         save_shortclips( run_folder, clips_folder)
