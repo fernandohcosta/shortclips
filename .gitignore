@@ -1,3 +1,6 @@
 # Virtual env
 .venv/
 venv/
+
+# Outputs
+outputs/
