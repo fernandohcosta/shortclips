@@ -23,6 +23,7 @@ def get_threshold_segments(scores, threshold=0.1):
     segment_ids = np.where(scores >= threshold)[0]
     return segment_ids
 
+
 def get_set_timestamps(segments, clusters):
     print(f"{len(segments) = }")
     print(f"{len(clusters) = }")
@@ -236,8 +237,7 @@ def segment_transcription_llm(run_folder):
     return clusters
 
 
-
-def segment_transcription_llm_test(run_folder):
+def segment_transcription_simplified(run_folder):
     with open(run_folder / 'segments.json', 'r') as f:
         segments = json.load(f)
     texts = ""
@@ -249,15 +249,9 @@ def segment_transcription_llm_test(run_folder):
     MODEL_STR = "sentence-transformers/all-mpnet-base-v2"
     model = SentenceTransformer(MODEL_STR)
 
-    nlp = spacy.load('en_core_web_sm')
     sents = []
-    #for text in texts:
     for segment in segments:
-        #doc = nlp(segment["text"].strip())
-        #for sent in doc.sents:
-            #sents.append(sent)
         sents.append(segment["text"].strip())          
-
     WINDOW_SIZE = 4
     window_sent = list(window(sents, WINDOW_SIZE))
     window_sent = [' '.join([sent for sent in window]) for window in window_sent]
@@ -273,18 +267,18 @@ def segment_transcription_llm_test(run_folder):
     segment_indices = [0] + segment_indices.tolist() + [len(sents)]
     slices = list(zip(segment_indices[:-1], segment_indices[1:]))
 
-    segmented = [sents[s[0]: s[1]] for s in slices]
+    #segmented = [sents[s[0]: s[1]] for s in slices]
+    
+    clusters_timestamps = [{'start': segments[s[0]]['start'],
+                   'end': segments[s[1]-1]['end'],
+                   'text': sents[s[0]: s[1]]} for s in slices]    
+      
     clusters = {}
-    for idx, current_cluster in enumerate(segmented):
-        clusters[idx] = {"text": [i for i in current_cluster]}
-
-    print(clusters[0])
-    print(segments[0]["start"])
+    for idx, cluster in enumerate(clusters_timestamps):
+        clusters[idx] = cluster
 
     for cluster in clusters:
         clusters[cluster]["text"] = delete_replicas(clusters[cluster]["text"])
-
-    clusters = get_set_timestamps(segments, clusters)
 
     json_object = json.dumps(clusters, indent=4)
     with open(run_folder / "clusters.json", "w") as outfile:

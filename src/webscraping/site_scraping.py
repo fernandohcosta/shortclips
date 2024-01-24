@@ -17,7 +17,6 @@ def get_page_links(url):
     for link in links:
         if link.startswith(url) and link.count('/') < 5:
             filtered_links.append(link)
-            #print(link)
     return filtered_links
 
 def get_title_text(url):
@@ -27,8 +26,7 @@ def get_title_text(url):
     title_text = {}
     for header in soup.find_all(['h1', 'h2', 'h3']):
         current_title = header.get_text()
-        title_text[current_title] = []
-        #print(current_title + u'\n')
+        title_text[current_title.strip()] = []
         for elem in header.next_siblings:
             if elem.name and elem.name.startswith('h'):
                 break
@@ -36,7 +34,6 @@ def get_title_text(url):
                 current_text = elem.get_text()
                 if current_text.strip() and current_title.strip():
                     title_text[current_title.strip()].append(current_text.strip())
-                #print(current_text + u'\n')
     to_remove = []
     for key in title_text:
         if not key or not len(title_text[key]) > 0:
